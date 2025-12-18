@@ -1,0 +1,70 @@
+services:
+  # MySQL Database
+  db:
+    image: mysql:8.0
+    container_name: biocatalog-db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root123
+      MYSQL_DATABASE: biocatalog
+      MYSQL_USER: biocatalog
+      MYSQL_PASSWORD: biocatalog123
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - biocatalog-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Laravel Backend
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: biocatalog-backend
+    restart: unless-stopped
+    working_dir: /var/www
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      - DB_HOST=db
+      - DB_PORT=3306
+      - DB_DATABASE=biocatalog
+      - DB_USERNAME=biocatalog
+      - DB_PASSWORD=biocatalog123
+    volumes:
+      - backend_storage:/var/www/storage/app/public
+    networks:
+      - biocatalog-network
+
+  # Next.js Frontend
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: biocatalog-frontend
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:8000/api
+    depends_on:
+      - backend
+    networks:
+      - biocatalog-network
+
+networks:
+  biocatalog-network:
+    driver: bridge
+
+volumes:
+  db_data:
+  backend_storage:
