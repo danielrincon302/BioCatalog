@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\ItemController;
 use App\Http\Controllers\Api\PasswordResetController;
 use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\RoleController;
+use App\Http\Controllers\Api\SettingController;
 use App\Http\Controllers\Api\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -35,6 +36,9 @@ Route::prefix('catalog')->group(function () {
     Route::get('/companies', [CatalogController::class, 'companies']);
     Route::get('/{slug}', [CatalogController::class, 'show']);
 });
+
+// Public settings
+Route::get('/settings', [SettingController::class, 'index']);
 
 // Protected routes (require authentication)
 Route::middleware('auth:sanctum')->group(function () {
@@ -64,4 +68,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('items', ItemController::class);
     Route::post('/items/{item}/images', [ItemController::class, 'addImages']);
     Route::delete('/items/{item}/images/{image}', [ItemController::class, 'deleteImage']);
+
+    // Settings (protected - update/upload)
+    Route::put('/settings', [SettingController::class, 'update']);
+    Route::post('/settings/upload', [SettingController::class, 'uploadImage']);
+    Route::delete('/settings/image', [SettingController::class, 'deleteImage']);
 });

@@ -13,6 +13,7 @@ import {
   LayoutDashboard,
   Users,
   Building2,
+  Settings,
   LogOut,
   Menu,
   X,
@@ -60,6 +61,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     { name: t.nav.items, href: '/items', icon: LayoutDashboard, show: true },
     { name: t.nav.users, href: '/users', icon: Users, show: isSuperAdmin() || isAdmin() },
     { name: t.nav.companies, href: '/companies', icon: Building2, show: isSuperAdmin() },
+    { name: t.nav.settings, href: '/settings', icon: Settings, show: isSuperAdmin() || isAdmin() },
   ];
 
   const handleLanguageChange = (lang: Language) => {

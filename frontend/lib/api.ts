@@ -133,4 +133,23 @@ export const catalogApi = {
   companies: () => api.get('/catalog/companies'),
 };
 
+// Settings API
+export const settingsApi = {
+  get: () => api.get('/settings'),
+  update: (data: { catalog_title?: string; catalog_title_en?: string }) =>
+    api.put('/settings', data),
+  uploadImage: (file: File, type: 'favicon' | 'logo') => {
+    const formData = new FormData();
+    formData.append('image', file);
+    formData.append('type', type);
+    return api.post('/settings/upload', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+  },
+  deleteImage: (type: 'favicon' | 'logo') =>
+    api.delete('/settings/image', { data: { type } }),
+};
+
 export default api;

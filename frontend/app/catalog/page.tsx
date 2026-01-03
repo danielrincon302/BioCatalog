@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { catalogApi, getImageUrl } from '@/lib/api';
+import { catalogApi, settingsApi, getImageUrl } from '@/lib/api';
 import { useLanguage } from '@/lib/language-context';
 import { languages, Language } from '@/lib/i18n';
 import { Button } from '@/components/ui/button';
@@ -33,10 +33,18 @@ interface Company {
   items_count: number;
 }
 
+interface Settings {
+  catalog_title: string;
+  catalog_title_en: string;
+  favicon_url: string;
+  logo_url: string;
+}
+
 export default function CatalogPage() {
   const [items, setItems] = useState<Item[]>([]);
   const [collections, setCollections] = useState<Collection[]>([]);
   const [companies, setCompanies] = useState<Company[]>([]);
+  const [settings, setSettings] = useState<Settings | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [selectedCollection, setSelectedCollection] = useState('');
@@ -71,12 +79,16 @@ export default function CatalogPage() {
 
   const fetchFilters = async () => {
     try {
-      const [colRes, compRes] = await Promise.all([
+      const [colRes, compRes, settingsRes] = await Promise.all([
         catalogApi.collections(),
         catalogApi.companies(),
+        settingsApi.get(),
       ]);
       setCollections(colRes.data.data);
       setCompanies(compRes.data.data);
+      if (settingsRes.data.success) {
+        setSettings(settingsRes.data.data);
+      }
     } catch (error) {
       console.error('Error fetching filters:', error);
     }
@@ -140,10 +152,14 @@ export default function CatalogPage() {
       </header>
 
       {/* Hero */}
-      <section className="bg-gradient-to-br from-green-600 to-green-800 text-white py-16">
+      <section className="bg-gradient-to-br from-green-600 to-green-800 text-white py-6">
         <div className="container mx-auto px-4 text-center">
-          <h1 className="text-4xl font-bold mb-4">{t.catalog.title}</h1>
-          <p className="text-lg text-green-100 mb-8 max-w-2xl mx-auto">
+          <h1 className="text-3xl font-bold mb-2">
+            {settings
+              ? (language === 'en' ? settings.catalog_title_en : settings.catalog_title) || t.catalog.title
+              : t.catalog.title}
+          </h1>
+          <p className="text-base text-green-100 mb-4 max-w-2xl mx-auto">
             {t.catalog.subtitle}
           </p>
           <div className="max-w-xl mx-auto relative">
@@ -180,6 +196,16 @@ export default function CatalogPage() {
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Sidebar Filters */}
           <aside className={`lg:w-64 flex-shrink-0 ${showFilters ? 'block' : 'hidden lg:block'}`}>
+            {/* Logo */}
+            {settings?.logo_url && (
+              <div className="mb-4 flex justify-center">
+                <img
+                  src={getImageUrl(settings.logo_url)}
+                  alt="Logo"
+                  className="w-1/2 h-auto object-contain rounded-lg"
+                />
+              </div>
+            )}
             <Card className="sticky top-24">
               <CardContent className="pt-6 space-y-6">
                 {/* Collections */}
