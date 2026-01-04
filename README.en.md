@@ -1,5 +1,8 @@
 # BioCatalog
 
+**Versión:** 1.0.0
+**Autor:** Cesar Daniel Rincon Brito
+
 ![BioCatalog - Home Page](docs/img/BioCatalogoHome.png)
 
 **BioCatalog** is a biodiversity catalog management system that allows documenting, organizing, and sharing information about fauna and flora species.
